@@ -1,145 +1,107 @@
-# Time Series Anomaly Detection for Helicopter Sensor Data
 
-## Overview
+# 🚁 Time Series Anomaly Detection for Helicopter Accelerometer Data
 
-This project focuses on detecting anomalies in helicopter accelerometer time series using unsupervised machine learning.
+## 📌 Project Overview
 
-The goal is to automate the validation of flight-test sensor data by identifying abnormal vibration patterns in accelerometer signals.
+This project implements an **unsupervised anomaly detection pipeline** for helicopter accelerometer time series data in an industrial context (Airbus Helicopters use case).
 
-## Business Context
+The objective is to automatically detect abnormal sensor behavior in flight-test data, reducing the need for manual inspection.
 
-Flight tests generate large volumes of sensor data. Manual validation is time-consuming and difficult to scale.
+---
 
-Anomaly detection can help engineering teams identify abnormal sensors or signals earlier and reduce manual inspection effort.
+## 📊 Dataset
 
-## Dataset
+* **Training set**: 1677 sequences (normal data only)
+* **Validation set**: 594 sequences (unknown distribution of anomalies)
+* Each sequence:
 
-The project uses helicopter accelerometer time series data from an Airbus AI Gym challenge.
+  * 1 minute duration
+  * Sampling frequency: 1024 Hz
+  * 61,440 time steps per signal
 
-The data includes:
+---
 
-- **Training set**: 1,677 normal one-minute sequences
-- **Validation set**: 594 one-minute sequences
-- **Sampling frequency**: 1,024 Hz
-- **Time steps per sequence**: 61,440
-- **Ground truth**: anomaly labels for validation sequences
+## ⚙️ Methodology
 
-## Methodology
+### 1. Feature Engineering
 
-The project follows this workflow:
+Extraction of time-domain features:
 
-1. Data loading from HDF5 files
-2. Data cleaning
-   - duplicate removal
-   - missing value checks
-   - low-variance sensor removal
-3. Time series visualization
-4. Feature engineering in the time domain
-5. Feature selection based on correlation
-6. Anomaly detection with Local Outlier Factor
-7. Hyperparameter tuning with feature bagging
-8. Evaluation against ground truth labels
+* Min / Max
+* Mean
+* Variance
+* RMS
+* Kurtosis
+* Skewness
+* Crest Factor (CF)
+* Shape Factor (SF)
 
-## Feature Engineering
+### 2. Feature Selection
 
-Extracted statistical and signal-based features include:
+* Correlation matrix used to remove redundant features
 
-- minimum
-- maximum
-- mean
-- variance
-- RMS
-- kurtosis
-- skewness
-- crest factor
-- impulse factor
-- shape factor
-- clearance factor
+### 3. Model
 
-## Model
+* **Local Outlier Factor (LOF)** (unsupervised)
+* Trained only on normal data
+* Threshold defined from training distribution
 
-The final approach uses:
+### 4. Optimization
 
-- Local Outlier Factor (LOF)
-- Feature Bagging
-- thresholding based on training-set anomaly scores
+* **Feature Bagging** to improve robustness
+* Best parameters selected empirically
 
-The selected parameters are:
+---
 
-- `n_neighbors = 3`
-- `n_estimators = 250`
+## 📈 Final Results
 
-## Results
+### Confusion Matrix
 
-The final model achieves:
-
-- **Weighted F1-score: ~90%**
-- **False Positive Rate: ~0.4%**
-
-This is important in a flight-test context, where false alarms should be minimized.
-
-## Key Insights
-
-- Time-domain statistical features are effective for detecting abnormal vibration behavior.
-- LOF is well-suited to this use case because training data contains only normal sequences.
-- Feature bagging improves robustness by combining multiple LOF estimators.
-- The low false positive rate makes the approach relevant for operational anomaly detection.
-
-## Repository Structure
-
-```text
-.
-├── data/
-│   └── README.md
-├── notebooks/
-│   └── helicopter_anomaly_detection.ipynb
-├── reports/
-│   └── anomaly_detection_report.pdf
-├── images/
-│   ├── time_series_examples.png
-│   ├── correlation_matrix.png
-│   ├── lof_scores.png
-│   └── confusion_matrix.png
-├── requirements.txt
-├── .gitignore
-└── README.md
+```
+[[252   0]
+ [ 69 160]]
 ```
 
-## Tech Stack
+### Metrics
 
-- Python
-- Pandas
-- NumPy
-- Matplotlib
-- Seaborn
-- Scikit-learn
-- PyOD
-- h5py
+* **Accuracy**: 0.86
+* **Precision (Anomaly)**: 1.00
+* **Recall (Anomaly)**: 0.70
+* **F1-score**: ~0.85
+* **False Positive Rate**: 0.00
 
-## How to Run
+---
 
-Install dependencies:
+## 🧠 Interpretation
 
-```bash
-pip install -r requirements.txt
-```
+* ✅ **No false positives** → critical for industrial use (no unnecessary inspections)
+* ⚠️ Some anomalies are missed → model is conservative
+* 🎯 Strong balance between reliability and detection capability
 
-Open the notebook:
+This behavior is **intentional and desirable** in an industrial context where false alarms are costly.
 
-```bash
-jupyter notebook notebooks/helicopter_anomaly_detection.ipynb
-```
+---
 
-> Note: the raw data files are not included in this repository if they are too large or subject to sharing restrictions.
+## 🚀 Key Takeaways
 
-## Future Improvements
+* Time-domain features are effective for vibration anomaly detection
+* LOF performs well in fully unsupervised settings
+* Feature Bagging significantly improves robustness
+* The model is suitable for **real-world sensor validation pipelines**
 
-- Convert the notebook into a reusable Python pipeline
-- Add automated tests for feature extraction
-- Compare LOF with Isolation Forest and One-Class SVM
-- Evaluate model stability with cross-validation or bootstrapping
-- Add a Streamlit dashboard for anomaly score exploration
+---
 
-## Author
+## 🔮 Possible Improvements
 
-Mohammed Mokeddem
+* Threshold tuning to improve recall
+* Comparison with:
+
+  * Isolation Forest
+  * One-Class SVM
+* Use of frequency-domain features (FFT)
+
+---
+
+## 📌 Conclusion
+
+This project demonstrates that an unsupervised learning approach can effectively detect anomalies in complex industrial time series while maintaining a **very low false positive rate**, making it highly relevant for aerospace applications.
