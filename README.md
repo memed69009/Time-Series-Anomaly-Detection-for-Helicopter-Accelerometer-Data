@@ -3,7 +3,7 @@
 
 ## 📌 Project Overview
 
-This project implements an **unsupervised anomaly detection pipeline** for helicopter accelerometer time series data in an industrial context (Airbus Helicopters use case).
+This project implements an unsupervised anomaly detection pipeline for helicopter accelerometer time series data in an industrial context (Airbus Helicopters use case).
 
 The objective is to automatically detect abnormal sensor behavior in flight-test data, reducing the need for manual inspection.
 
@@ -72,7 +72,7 @@ Extraction of time-domain features:
 
 ---
 
-## 🧠 Interpretation
+## Interpretation
 
 * ✅ **No false positives** → critical for industrial use (no unnecessary inspections)
 * ⚠️ Some anomalies are missed → model is conservative
